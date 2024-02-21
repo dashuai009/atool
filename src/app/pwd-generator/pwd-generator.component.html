@@ -1,0 +1,9 @@
+{{ new_pwd}}
+<form class="example-section" [formGroup]="toppings"  (ngSubmit)="generate_pwd()">
+    <h4>include:</h4>
+    <p><mat-checkbox formControlName="lowerCase">lower case</mat-checkbox></p>
+    <p><mat-checkbox formControlName="upperCase">Upper Case</mat-checkbox></p>
+    <p><mat-checkbox formControlName="digits">Digits</mat-checkbox></p>
+    <p><mat-checkbox formControlName="specialCharacters">Special Characters</mat-checkbox></p>
+    <button mat-raised-button color="primary" type="submit">Generate</button>
+</form>
