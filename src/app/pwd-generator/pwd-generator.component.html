@@ -1,6 +1,6 @@
 {{ new_pwd}}
-<form class="example-section" [formGroup]="toppings"  (ngSubmit)="generate_pwd()">
-    <h4>include:</h4>
+<form class="example-section" [formGroup]="toppings" (ngSubmit)="generate_pwd()">
+    <input matNativeControl #postalCode type="number" formControlName="passwordLength">
     <p><mat-checkbox formControlName="lowerCase">lower case</mat-checkbox></p>
     <p><mat-checkbox formControlName="upperCase">Upper Case</mat-checkbox></p>
     <p><mat-checkbox formControlName="digits">Digits</mat-checkbox></p>

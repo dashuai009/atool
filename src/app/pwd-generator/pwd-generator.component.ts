@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { invoke } from '@tauri-apps/api'
 
 @Component({
   selector: 'app-pwd-generator',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatCheckboxModule, MatButtonModule],
+  imports: [FormsModule, ReactiveFormsModule, MatCheckboxModule, MatButtonModule, MatFormFieldModule],
   templateUrl: './pwd-generator.component.html',
   styleUrl: './pwd-generator.component.css'
 })
@@ -18,7 +18,8 @@ export class PwdGeneratorComponent {
     lowerCase: true,
     upperCase: false,
     digits: true,
-    specialCharacters: true
+    specialCharacters: true,
+    passwordLength: 10
   });
 
   new_pwd = "empty";
@@ -42,12 +43,12 @@ export class PwdGeneratorComponent {
     }
     console.log(`val = ${val} , flag = ${flag}`)
 
-    invoke('gen_pwd_cmd', { flag: flag, len: 10 })
-    // `invoke` returns a Promise
-    .then((response) => {
-      this.new_pwd = response as string
-      console.log(response)
-    })
-  
+    invoke('gen_pwd_cmd', { flag: flag, pwdLen: val.passwordLength })
+      // `invoke` returns a Promise
+      .then((response) => {
+        this.new_pwd = response as string
+        console.log(response)
+      })
+
   }
 }
