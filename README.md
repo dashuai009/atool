@@ -1,7 +1,9 @@
-# Tauri + Angular
+# Atool
 
-This template should help get you started developing with Tauri and Angular.
+This is a toolbox containing some small features.
 
-## Recommended IDE Setup
+## features
 
-[VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer) + [Angular Language Service](https://marketplace.visualstudio.com/items?itemName=Angular.ng-template).
+- [x] Password generator: Generate a random password based on options: length, whether to include uppercase and lowercase letters, numbers, and special characters.
+- [] Whisper deom: Integrate the ![Whisper](https://github.com/openai/whisper) model to provide functions such as speech recognition and automatic subtitle addition to videos.
+- [ ]Format factory: Integrate ffmpeg. 
