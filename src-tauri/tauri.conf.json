@@ -15,12 +15,17 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "clipboard": {
+        "all": false,
+        "readText": false,
+        "writeText": true
       }
     },
     "windows": [
       {
         "title": "atool",
-        "width": 1800,
+        "width": 800,
         "height": 600
       }
     ],

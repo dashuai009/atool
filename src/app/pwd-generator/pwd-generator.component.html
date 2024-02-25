@@ -1,9 +1,14 @@
-{{ new_pwd}}
-<form class="example-section" [formGroup]="toppings" (ngSubmit)="generate_pwd()">
+<form class="pwd-gen-form" [formGroup]="toppings">
+    <div style="display: flex; align-items: center; border-radius: 4px; border: 1px solid;">
+        <p #textToCopy>{{new_pwd}}</p>
+        <button mat-icon-button [matTooltip]=" 'copy' " (click)="copy_pwd()" style="align-items: flex-end; cursor: pointer;">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    </div>
     <input matNativeControl #postalCode type="number" formControlName="passwordLength">
     <p><mat-checkbox formControlName="lowerCase">lower case</mat-checkbox></p>
     <p><mat-checkbox formControlName="upperCase">Upper Case</mat-checkbox></p>
     <p><mat-checkbox formControlName="digits">Digits</mat-checkbox></p>
     <p><mat-checkbox formControlName="specialCharacters">Special Characters</mat-checkbox></p>
-    <button mat-raised-button color="primary" type="submit">Generate</button>
+    <button mat-raised-button color="primary" type="submit"  (click)="generate_pwd()">Generate</button>
 </form>

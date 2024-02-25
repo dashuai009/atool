@@ -3,12 +3,15 @@ import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { invoke } from '@tauri-apps/api'
+import { writeText } from '@tauri-apps/api/clipboard';
 
 @Component({
   selector: 'app-pwd-generator',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatCheckboxModule, MatButtonModule, MatFormFieldModule],
+  imports: [FormsModule, ReactiveFormsModule, MatCheckboxModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatTooltipModule],
   templateUrl: './pwd-generator.component.html',
   styleUrl: './pwd-generator.component.css'
 })
@@ -50,5 +53,9 @@ export class PwdGeneratorComponent {
         console.log(response)
       })
 
+  }
+
+  copy_pwd() {
+    writeText(this.new_pwd)
   }
 }

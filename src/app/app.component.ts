@@ -15,7 +15,7 @@ import { PwdGeneratorComponent } from './pwd-generator/pwd-generator.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  lotsOfTabs = new Array(30).fill(0).map((_, index) => `Tab ${index}`);
+  lotsOfTabs = new Array(1).fill(0).map((_, index) => `Tab ${index}`);
   greetingMessage = "";
 
   greet(event: SubmitEvent, name: string): void {

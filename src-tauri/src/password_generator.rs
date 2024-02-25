@@ -43,7 +43,7 @@ fn gen_pwd(flag: GenFlags, pwd_len: u32) -> String {
 
     let mut rng = rand::thread_rng(); // Create a random number generator
     let mut res = String::new();
-    for i in 0..pwd_len {
+    for _i in 0..pwd_len {
         let random_element = pool.choose(&mut rng);
         res.push_str(
             &random_element
