@@ -9,13 +9,15 @@ edition = "2021"
 
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }
+pkg-config = "0.3"
 
 [dependencies]
-tauri = { version = "1.5", features = [ "clipboard-all", "shell-open"] }
+tauri = { version = "1.5", features = [ "clipboard-write-text", "shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 bitflags = {version = "2.4.2", features = ["serde"] }
 rand = "0.8.5"
+ffmpeg-next = { version = "6.1.1", features = ["build", "build-license-gpl", "build-license-nonfree", "build-lib-x264", "build-lib-x265",  "build-lib-vpx"] }
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod password_generator;
+mod video_factory;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -11,7 +12,7 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, password_generator::gen_pwd_cmd])
+        .invoke_handler(tauri::generate_handler![greet, password_generator::gen_pwd_cmd, video_factory::video_convert_cmd])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

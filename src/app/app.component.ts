@@ -6,11 +6,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 import {MatTabsModule} from '@angular/material/tabs';
 
 import { PwdGeneratorComponent } from './pwd-generator/pwd-generator.component';
-
+import { VideoConvertComponent } from './video-convert/video-convert.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MatTabsModule, PwdGeneratorComponent],
+  imports: [CommonModule, RouterOutlet, MatTabsModule, PwdGeneratorComponent, VideoConvertComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
