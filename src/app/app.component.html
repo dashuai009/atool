@@ -1,13 +1,12 @@
 <div class="container">
-  <mat-tab-group>
-    <mat-tab label="Video Converter">
-      <app-video-convert />
-    </mat-tab>
-    <mat-tab label="Password Generator">
-      <app-pwd-generator />
-    </mat-tab>
-    @for (tab of lotsOfTabs; track tab) {
-      <mat-tab [label]="tab">Content</mat-tab>
-    }
-  </mat-tab-group>
+    <nz-tabset nzCentered>
+        <nz-tab nzTitle="Video Converter">
+        <app-video-convert /></nz-tab>
+        <nz-tab nzTitle="Password Generator">
+            <app-pwd-generator /></nz-tab>
+        <nz-tab nzTitle="Tab 3">Content of Tab Pane 3</nz-tab>
+        @for (tab of lotsOfTabs; track tab) {
+            <nz-tab  [nzTitle]="tab">Content</nz-tab >
+        }
+    </nz-tabset>
 </div>

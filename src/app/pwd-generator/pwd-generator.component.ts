@@ -1,61 +1,90 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { invoke } from '@tauri-apps/api'
-import { writeText } from '@tauri-apps/api/clipboard';
+import {Component} from '@angular/core';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {NzCheckboxModule} from 'ng-zorro-antd/checkbox';
+import {NzButtonModule} from 'ng-zorro-antd/button';
+import {NzFormModule} from 'ng-zorro-antd/form';
+import {NzInputModule} from 'ng-zorro-antd/input';
+import {invoke} from '@tauri-apps/api'
+import {writeText} from '@tauri-apps/api/clipboard';
+import {NzInputNumberModule} from 'ng-zorro-antd/input-number';
+import {NzSpaceComponent, NzSpaceItemDirective} from "ng-zorro-antd/space";
+import {NzIconDirective} from "ng-zorro-antd/icon";
+import {NzMessageModule, NzMessageService} from 'ng-zorro-antd/message';
+
 
 @Component({
-  selector: 'app-pwd-generator',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatCheckboxModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatTooltipModule],
-  templateUrl: './pwd-generator.component.html',
-  styleUrl: './pwd-generator.component.css'
+    selector: 'app-pwd-generator',
+    standalone: true,
+    imports: [FormsModule, NzMessageModule, ReactiveFormsModule, NzCheckboxModule, NzButtonModule, NzFormModule, NzInputModule, NzInputNumberModule, NzSpaceItemDirective, NzSpaceComponent, NzIconDirective],
+    templateUrl: './pwd-generator.component.html',
+    styleUrl: './pwd-generator.component.css'
 })
 export class PwdGeneratorComponent {
+    allChecked = false;
+    indeterminate = true;
+    checkOptionsOne = [
+        {label: 'Lower Case', value: (1 << 0), checked: true},
+        {label: 'Upper Case', value: (1 << 1), checked: false},
+        {label: 'Digits', value: (1 << 2), checked: true},
+        {label: 'Special Chars', value: (1 << 3), checked: true}
+    ];
 
-  toppings = this._formBuilder.group({
-    lowerCase: true,
-    upperCase: false,
-    digits: true,
-    specialCharacters: true,
-    passwordLength: 10
-  });
+    passwordLength = 16;
 
-  new_pwd = "empty";
+    newPwd = "empty";
 
-  constructor(private _formBuilder: FormBuilder) { }
-
-  generate_pwd() {
-    let flag = 0;
-    let val = this.toppings.value;
-    if (val.lowerCase) {
-      flag |= (1 << 0);
+    constructor(private message: NzMessageService) {
     }
-    if (val.upperCase) {
-      flag |= (1 << 1);
-    }
-    if (val.digits) {
-      flag |= (1 << 2);
-    }
-    if (val.specialCharacters) {
-      flag |= (1 << 3);
-    }
-    console.log(`val = ${val} , flag = ${flag}`)
 
-    invoke('gen_pwd_cmd', { flag: flag, pwdLen: val.passwordLength })
-      // `invoke` returns a Promise
-      .then((response) => {
-        this.new_pwd = response as string
-        console.log(response)
-      })
+    generate_pwd() {
+        let flag = 0;
+        this.checkOptionsOne.map(item => {
+            if (item.checked) {
+                flag |= item.value;
+            }
+        });
+        console.log(`val = ${this.checkOptionsOne} , flag = ${flag}`)
 
-  }
+        invoke('gen_pwd_cmd', {flag: flag, pwdLen: this.passwordLength})
+            // `invoke` returns a Promise
+            .then((response) => {
+                this.newPwd = response as string
+                console.log(response)
+            })
 
-  copy_pwd() {
-    writeText(this.new_pwd)
-  }
+    }
+
+    copy_pwd() {
+        writeText(this.newPwd).then(r => {
+            this.message.success(`Password ${this.newPwd} has been copy to clipboard.`);
+        });
+    }
+
+
+    updateAllChecked(): void {
+        this.indeterminate = false;
+        if (this.allChecked) {
+            this.checkOptionsOne = this.checkOptionsOne.map(item => ({
+                ...item,
+                checked: true
+            }));
+        } else {
+            this.checkOptionsOne = this.checkOptionsOne.map(item => ({
+                ...item,
+                checked: false
+            }));
+        }
+    }
+
+    updateSingleChecked(): void {
+        if (this.checkOptionsOne.every(item => !item.checked)) {
+            this.allChecked = false;
+            this.indeterminate = false;
+        } else if (this.checkOptionsOne.every(item => item.checked)) {
+            this.allChecked = true;
+            this.indeterminate = false;
+        } else {
+            this.indeterminate = true;
+        }
+    }
 }

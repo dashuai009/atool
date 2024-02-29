@@ -1,14 +1,27 @@
-<form class="pwd-gen-form" [formGroup]="toppings">
-    <div style="display: flex; align-items: center; border-radius: 4px; border: 1px solid;">
-        <p #textToCopy>{{new_pwd}}</p>
-        <button mat-icon-button [matTooltip]=" 'copy' " (click)="copy_pwd()" style="align-items: flex-end; cursor: pointer;">
-            <mat-icon>content_copy</mat-icon>
-        </button>
+<div style="border-bottom: 1px solid rgb(233, 233, 233); margin: auto; max-width: 400px; ">
+    <div>
+        <nz-input-group [nzAddOnAfter]="addOnAfterTemplate">
+            <input type="text" nz-input [(ngModel)]="newPwd"/>
+        </nz-input-group>
+        <ng-template #addOnAfterTemplate>
+            <button nz-button nzType="text" (click)="copy_pwd()"><span nz-icon nzType="copy"></span></button>
+        </ng-template>
     </div>
-    <input matNativeControl #postalCode type="number" formControlName="passwordLength">
-    <p><mat-checkbox formControlName="lowerCase">lower case</mat-checkbox></p>
-    <p><mat-checkbox formControlName="upperCase">Upper Case</mat-checkbox></p>
-    <p><mat-checkbox formControlName="digits">Digits</mat-checkbox></p>
-    <p><mat-checkbox formControlName="specialCharacters">Special Characters</mat-checkbox></p>
-    <button mat-raised-button color="primary" type="submit"  (click)="generate_pwd()">Generate</button>
-</form>
+    <label
+            nz-checkbox
+            [(ngModel)]="allChecked"
+            (ngModelChange)="updateAllChecked()"
+            [nzIndeterminate]="indeterminate"
+    >
+        Check all
+    </label>
+    <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+
+    <nz-space nzDirection="vertical" style="width: 100%">
+        <nz-input-number-group *nzSpaceItem nzCompact>
+            <nz-input-number [(ngModel)]="passwordLength" [nzStep]="1"
+                             style="width: calc(100% - 200px)"></nz-input-number>
+            <button nz-button nzType="primary" (click)="generate_pwd()">Submit</button>
+        </nz-input-number-group>
+    </nz-space>
+</div>

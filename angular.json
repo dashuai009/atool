@@ -22,7 +22,7 @@
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/assets"],
             "styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/theme.less",
               "src/styles.css"
             ]
           },
@@ -64,6 +64,12 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "atool:build"
+          }
         }
       }
     }

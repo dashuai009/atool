@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { invoke } from "@tauri-apps/api/tauri";
 
-import {MatTabsModule} from '@angular/material/tabs';
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
 
 import { PwdGeneratorComponent } from './pwd-generator/pwd-generator.component';
 import { VideoConvertComponent } from './video-convert/video-convert.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MatTabsModule, PwdGeneratorComponent, VideoConvertComponent],
+  imports: [CommonModule, RouterOutlet, PwdGeneratorComponent, VideoConvertComponent, NzTabsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

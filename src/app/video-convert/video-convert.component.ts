@@ -1,10 +1,6 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatSelectModule} from '@angular/material/select';
-import {MatInputModule} from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
+import {FormBuilder} from "@angular/forms";
 
 
 export enum AtoolCodecType {
@@ -18,7 +14,7 @@ export enum AtoolCodecType {
 @Component({
   selector: 'app-video-convert',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatButtonModule],
+  imports: [CommonModule],
   templateUrl: './video-convert.component.html',
   styleUrl: './video-convert.component.css'
 })
