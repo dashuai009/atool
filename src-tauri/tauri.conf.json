@@ -20,6 +20,15 @@
         "all": false,
         "readText": false,
         "writeText": true
+      },
+      "fs": {
+        "all": true
+      },
+      "dialog": {
+        "all": true
+      },
+      "protocol": {
+        "all": true
       }
     },
     "windows": [

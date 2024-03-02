@@ -137,7 +137,7 @@ impl Transcoder {
     fn log_progress(&mut self, timestamp: f64) {
         if !self.logging_enabled
             || (self.frame_count - self.last_log_frame_count < 100
-                && self.last_log_time.elapsed().as_secs_f64() < 1.0)
+            && self.last_log_time.elapsed().as_secs_f64() < 1.0)
         {
             return;
         }
@@ -164,7 +164,7 @@ fn parse_opts<'a>(s: String) -> Option<Dictionary<'a>> {
     Some(dict)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug)]
 pub enum AtoolCodecType {
     X264,
     X265,
@@ -175,12 +175,35 @@ pub enum AtoolCodecType {
 
 #[tauri::command]
 pub fn video_convert_cmd(
-    input_file: String,
-    output_file: String,
+    input_file: Vec<String>,
     to_type: AtoolCodecType,
+    output_dir: String,
     options: String,
 ) {
-    video_convert(&input_file, &output_file, to_type, &options);
+    let output_dir = Path::new(&output_dir);
+    for file in input_file {
+        let file_path = Path::new(&file);
+
+        // 提取文件名
+        if let Some(file_name) = file_path.file_name() {
+            let target_file_path = output_dir.join(file_name);
+            if (!target_file_path.exists()) {
+                video_convert(&file, target_file_path.to_str().unwrap(), to_type, &options);
+            } else {
+                for i in 0..1000 {
+                    let extension = file_path.extension().map(|x| format!(".{}", x.to_str().unwrap())).unwrap_or("".to_string());
+                    let file_stem = file_path.file_stem().unwrap();
+                    let s = format!("{}_{}{}", file_stem.to_str().unwrap(), i, extension);
+
+                    let new_target_file_path = output_dir.join(s);
+                    if !new_target_file_path.exists() {
+                        video_convert(&file, new_target_file_path.to_str().unwrap(), to_type, &options);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn video_convert(
@@ -189,6 +212,8 @@ fn video_convert(
     to_type: AtoolCodecType,
     options: &str,
 ) {
+    println!("video convert: {} {} {:?} {}", input_file, output_file, to_type, options);
+    return;
     let x264_opts = parse_opts(options.to_string()).expect("invalid x264 options string");
 
     eprintln!("x264 options: {:?}", x264_opts);
@@ -231,8 +256,7 @@ fn video_convert(
                     ost_index as _,
                     x264_opts.to_owned(),
                     Some(ist_index) == best_video_stream_index,
-                )
-                .unwrap(),
+                ).unwrap(),
             );
         } else {
             // Set up for stream copy for non-video stream.
@@ -395,6 +419,7 @@ mod test {
 
         println!("\t max_lowres: {:?}", codec.max_lowres());
     }
+
     #[test]
     fn test_ffmpeg() {
         ffmpeg::init().unwrap();

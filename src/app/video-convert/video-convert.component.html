@@ -7,3 +7,24 @@
 <!--    </mat-form-field>-->
 <!--    <button mat-raised-button color="primary" type="submit" (click)="video_convert()">Convert</button>-->
 <!--</form>-->
+
+@for (f of inputFiles; track f) {
+    <video width="240px" [src]="f.assetPath" controls></video>
+}
+<button nz-button (click)="handler()">UpLoad</button>
+<nz-select [(ngModel)]="selectedCodecType">
+    @for (f of codecTypes; track f) {
+        <nz-option [nzValue]="f" [nzLabel]="f"></nz-option>
+    }
+</nz-select>
+<button nz-button (click)="video_convert()">Convert</button>
+
+
+<div>
+    <nz-input-group [nzAddOnAfter]="addOnAfterTemplate">
+        <input type="text" nz-input [(ngModel)]="outputDir"/>
+    </nz-input-group>
+    <ng-template #addOnAfterTemplate>
+        <button nz-button nzType="text" (click)="selectOutputDir()"><span nz-icon nzType="select"></span></button>
+    </ng-template>
+</div>
