@@ -1,0 +1,9 @@
+<p>whisper works!</p>
+<button mat-raised-button (click)="SelectFile()"><mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="pick"></mat-icon>pick file</button>
+<button mat-raised-button (click)="RunTasks()"><mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="run task"></mat-icon>run tasks</button>
+
+
+<div *ngFor="let item of selected_files">
+<div>{{item}}</div>
+    <audio controls [src]="item"></audio>
+</div>
