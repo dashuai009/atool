@@ -1,0 +1,12 @@
+.task-item{
+    display: flex;
+    flex-direction: row; 
+    margin: 4px;
+}
+
+.header{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin: 3px;
+}
