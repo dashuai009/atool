@@ -24,6 +24,7 @@ use std::{collections::HashMap, path::Path};
 use ffmpeg::{
     codec, decoder, encoder, format, frame, log, media, picture, Dictionary, Packet, Rational,
 };
+use ffmpeg_next::codec::Id;
 use serde::{Deserialize, Serialize};
 
 const DEFAULT_X264_OPTS: &str = "preset=medium";
@@ -44,30 +45,40 @@ impl Transcoder {
         ist: &format::stream::Stream,
         octx: &mut format::context::Output,
         ost_index: usize,
-        x264_opts: Dictionary,
+        opts: Option<Dictionary>,
         enable_logging: bool,
+        to_type: AtoolCodecType,
     ) -> Result<Self, ffmpeg::Error> {
         let global_header = octx.format().flags().contains(format::Flags::GLOBAL_HEADER);
         let decoder = ffmpeg::codec::context::Context::from_parameters(ist.parameters())?
             .decoder()
             .video()?;
-        let mut ost = octx.add_stream(encoder::find(codec::Id::H264))?;
-        let mut encoder = codec::context::Context::from_parameters(ost.parameters())?
+        let idd = encoder::find(to_type.into());
+        let mut ost = octx.add_stream(encoder::find(to_type.into()))?;
+        let mut pars = ost.parameters();
+        let mut encoder = codec::context::Context::from_parameters(pars)?
             .encoder()
             .video()?;
+
+        println!("rate = {} height = {}, width = {}, aspect_ratio = {}, format = {:?}",
+                 ist.rate(), decoder.height(), decoder.width(), decoder.aspect_ratio(), decoder.format());
         encoder.set_height(decoder.height());
         encoder.set_width(decoder.width());
         encoder.set_aspect_ratio(decoder.aspect_ratio());
         encoder.set_format(decoder.format());
-        encoder.set_frame_rate(decoder.frame_rate());
-        encoder.set_time_base(decoder.frame_rate().unwrap().invert());
+        encoder.set_frame_rate(Some(ist.rate()));
+        encoder.set_time_base(ist.rate().invert());
         if global_header {
             encoder.set_flags(codec::Flags::GLOBAL_HEADER);
         }
 
-        encoder
-            .open_with(x264_opts)
-            .expect("error opening libx264 encoder with supplied settings");
+        if let Some(opt) = opts {
+            encoder
+                .open_with(opt)
+                .expect(&format!("error opening {:?} encoder with supplied settings", to_type));
+        } else {
+            encoder.open().expect("open filed");
+        }
         encoder = codec::context::Context::from_parameters(ost.parameters())?
             .encoder()
             .video()?;
@@ -154,7 +165,11 @@ impl Transcoder {
 
 fn parse_opts<'a>(s: String) -> Option<Dictionary<'a>> {
     let mut dict = Dictionary::new();
-    for keyval in s.split_terminator(',') {
+    let s = s.split_terminator(',').collect::<Vec<_>>();
+    if s.len() == 0 {
+        return None;
+    }
+    for keyval in s {
         let tokens: Vec<&str> = keyval.split('=').collect();
         match tokens[..] {
             [key, val] => dict.set(key, val),
@@ -171,6 +186,29 @@ pub enum AtoolCodecType {
     AV1,
     VP8,
     VP9,
+}
+
+
+impl From<AtoolCodecType> for Id {
+    fn from(value: AtoolCodecType) -> Self {
+        match value {
+            AtoolCodecType::X264 => {
+                Id::H264
+            }
+            AtoolCodecType::X265 => {
+                Id::H265
+            }
+            AtoolCodecType::AV1 => {
+                Id::AV1
+            }
+            AtoolCodecType::VP8 => {
+                Id::VP8
+            }
+            AtoolCodecType::VP9 => {
+                Id::VP9
+            }
+        }
+    }
 }
 
 #[tauri::command]
@@ -213,8 +251,7 @@ fn video_convert(
     options: &str,
 ) {
     println!("video convert: {} {} {:?} {}", input_file, output_file, to_type, options);
-    return;
-    let x264_opts = parse_opts(options.to_string()).expect("invalid x264 options string");
+    let x264_opts = parse_opts(options.to_string());
 
     eprintln!("x264 options: {:?}", x264_opts);
 
@@ -256,6 +293,7 @@ fn video_convert(
                     ost_index as _,
                     x264_opts.to_owned(),
                     Some(ist_index) == best_video_stream_index,
+                    to_type,
                 ).unwrap(),
             );
         } else {
@@ -318,6 +356,8 @@ fn video_convert(
 #[cfg(test)]
 mod test {
     extern crate ffmpeg_next as ffmpeg;
+
+    use crate::video_factory::AtoolCodecType;
 
     fn print_decoder(codec: ffmpeg::codec::codec::Codec) {
         println!("type: decoder");
@@ -443,6 +483,7 @@ mod test {
             ffmpeg::codec::id::Id::H265,
             ffmpeg::codec::id::Id::AV1,
             ffmpeg::codec::id::Id::VP9,
+            ffmpeg::codec::id::Id::PCM_S16LE,
         ] {
             if let Some(codec) = ffmpeg::decoder::find(arg) {
                 print_decoder(codec);
@@ -456,5 +497,12 @@ mod test {
                 println!("can't find encoder for {:?}", arg);
             }
         }
+
+       super::video_convert(
+           "/Users/dashuai/Downloads/VID_20240124_163100.mp4",
+           "/Users/dashuai/Downloads/VID_20240124_163100_7.mp4",
+           AtoolCodecType::X264,
+           ""
+       )
     }
 }
