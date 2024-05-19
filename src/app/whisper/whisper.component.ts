@@ -9,11 +9,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { open } from '@tauri-apps/api/dialog';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { invoke } from '@tauri-apps/api'
+import {MatTooltip} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-whisper',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, CommonModule, MatFormFieldModule, MatInputModule, FormsModule, MatSelectModule],
+  imports: [MatButtonModule, MatIconModule, CommonModule, MatFormFieldModule, MatInputModule, FormsModule, MatSelectModule, MatTooltip],
   templateUrl: './whisper.component.html',
   styleUrl: './whisper.component.css'
 })
@@ -22,9 +23,30 @@ export class WhisperComponent {
   tasks: {
     file_path: String,
     decode_option: {
-      task: String
+      task: String,
+      language: String | undefined,
+      temperature: number,
+      smaple_len: number|undefined,
+      best_of: number | undefined,
+      beam_size: number | undefined,
+      patience: number | undefined,
+
+      length_penalty: number | undefined,
+      prompt: number|undefined,
+      prefix: number | undefined,
+
+      suppress_tokens: {
+        Text: String | undefined,
+        Tokens: Set<number> | undefined
+      },
+      suppress_blank: boolean,
+      without_timestamps: boolean,
+      max_initial_timestamp: number |undefined,
+      fp16: boolean
+
     }
   }[] = []
+  decoding_res: String[] = []
 
   constructor() {
 
@@ -35,7 +57,8 @@ export class WhisperComponent {
     invoke('whisper_run_tasks', { tasks: this.tasks })
       // `invoke` returns a Promise
       .then((response) => {
-        console.log(response)
+        // @ts-ignore
+        this.decoding_res = response;
       })
 
   }
@@ -68,11 +91,28 @@ export class WhisperComponent {
       })
       this.tasks.push({
         file_path: file,
-        decode_option: {
-          task: "Transcribe"
+        decode_option: { // default value
+          task: "Transcribe",
+          language: undefined,
+          temperature: 0,
+          smaple_len: undefined,
+          best_of: undefined,
+          beam_size: undefined,
+          patience: undefined,
+          length_penalty: undefined,
+          prompt: undefined,
+          prefix: undefined,
+          suppress_tokens: {
+            Text: "-1",
+            Tokens: undefined
+          },
+          suppress_blank: true,
+          without_timestamps: false,
+          max_initial_timestamp: undefined,
+          fp16: true
         }
-
       })
+      this.decoding_res.push("")
     }
     console.log("array selected: ", selected, "after = ", this.selected_files)
   }
