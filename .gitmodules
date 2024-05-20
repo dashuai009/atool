@@ -1,0 +1,3 @@
+[submodule "src-tauri/whisper-burn"]
+	path = src-tauri/whisper-burn
+	url = https://github.com/dashuai009/whisper-burn.git

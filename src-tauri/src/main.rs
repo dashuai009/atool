@@ -1,7 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+extern crate ffmpeg_next;
 mod password_generator;
+mod whisper;
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -11,7 +13,14 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, password_generator::gen_pwd_cmd])
+        .manage(whisper::WhisperState::default())
+        .invoke_handler(tauri::generate_handler![
+            greet, 
+            password_generator::gen_pwd_cmd,
+            whisper::whisper_run_tasks,
+            whisper::whisper_change_model,
+            whisper::whisper_get_model_kinds
+            ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

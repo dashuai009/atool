@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api';
 import { writeText } from '@tauri-apps/api/clipboard';
 
 @Component({

@@ -6,11 +6,12 @@ import { invoke } from "@tauri-apps/api/tauri";
 import {MatTabsModule} from '@angular/material/tabs';
 
 import { PwdGeneratorComponent } from './pwd-generator/pwd-generator.component';
+import { WhisperComponent } from './whisper/whisper.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MatTabsModule, PwdGeneratorComponent],
+  imports: [CommonModule, RouterOutlet, MatTabsModule, PwdGeneratorComponent, WhisperComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

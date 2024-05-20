@@ -15,6 +15,8 @@ jobs:
       matrix:
         platform: [macos-latest, ubuntu-20.04, windows-latest]
 
+    env:
+      WINDOWS_FFMPEG_DOWNLOAD_URL: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -27,11 +29,38 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
+        # install tauri & ffmpeg dependencies
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt install -y --no-install-recommends clang curl pkg-config
+          sudo apt install -y clang autoconf automake cmake libtool git checkinstall nasm yasm \
+          libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev \
+          libass-dev libfreetype6-dev libsdl2-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev libchromaprint-dev frei0r-plugins-dev ladspa-sdk libcaca-dev libcdio-paranoia-dev libcodec2-dev libfontconfig1-dev libfreetype6-dev libfribidi-dev libgme-dev libgsm1-dev libjack-dev libmodplug-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenjp2-7-dev libopenmpt-dev libopus-dev libpulse-dev librsvg2-dev librubberband-dev librtmp-dev libshine-dev libsmbclient-dev libsnappy-dev libsoxr-dev libspeex-dev libssh-dev libtesseract-dev libtheora-dev libtwolame-dev libv4l-dev libvo-amrwbenc-dev libvpx-dev libwavpack-dev libwebp-dev libx264-dev libx265-dev libxvidcore-dev libxml2-dev libzmq3-dev libzvbi-dev liblilv-dev libmysofa-dev libopenal-dev opencl-dev gnutls-dev \
+          libraw1394-dev flite1-dev libmfx-dev libavc1394-dev libdc1394-dev libbs2b-dev librabbitmq-dev \
+          libiec61883-dev libpocketsphinx-dev libsphinxbase-dev libvidstab-dev libzimg-dev libbz2-dev \
+          libbluray-dev libsrt-gnutls-dev libdav1d-dev libaom-dev
+
+      - uses: actions/checkout@v4
+      - name: Install dependencies (MacOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew install ffmpeg pkg-config
+
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        if: matrix.platform == 'windows-latest'
+        run: |
+          $VCINSTALLDIR = $(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath)
+          Add-Content $env:GITHUB_ENV "LIBCLANG_PATH=${VCINSTALLDIR}\VC\Tools\LLVM\x64\bin`n"
+          Invoke-WebRequest "${env:WINDOWS_FFMPEG_DOWNLOAD_URL}" -OutFile ffmpeg-release-full-shared.7z
+          7z x ffmpeg-release-full-shared.7z
+          mkdir ffmpeg
+          mv ffmpeg-*/* ffmpeg/
+          Add-Content $env:GITHUB_ENV "FFMPEG_DIR=${pwd}\ffmpeg`n"
+          Add-Content $env:GITHUB_PATH "${pwd}\ffmpeg\bin`n"
 
       - name: install frontend dependencies
         run: npm install # change this to npm or pnpm depending on which one you use
