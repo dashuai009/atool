@@ -106,7 +106,7 @@ pub fn filepath_to_mels<B: Backend>(file_path: &str, device: &B::Device) -> (Ten
     let mut wave = load_audio_waveform_with_ffmpeg(&file_path).unwrap();
     let wave_duration = wave.len();
     let pad_len = if wave.len() % N_SAMPLES == 0 { 0 } else { N_SAMPLES - wave.len() % N_SAMPLES };
-    for i in 0..pad_len {
+    for _i in 0..pad_len {
         wave.push(0.0);
     }
     let audio_len = wave.len();

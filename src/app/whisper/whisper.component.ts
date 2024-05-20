@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { open } from '@tauri-apps/api/dialog';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { invoke } from '@tauri-apps/api'
-import {MatTooltip} from "@angular/material/tooltip";
+import { MatTooltip } from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-whisper',
@@ -19,6 +19,8 @@ import {MatTooltip} from "@angular/material/tooltip";
   styleUrl: './whisper.component.css'
 })
 export class WhisperComponent {
+  selected_model_kind: String = "Base";
+  all_model_kind: String[] = [];
   selected_files: { local_path: String, url: String }[] = [];
   tasks: {
     file_path: String,
@@ -26,13 +28,13 @@ export class WhisperComponent {
       task: String,
       language: String | undefined,
       temperature: number,
-      smaple_len: number|undefined,
+      smaple_len: number | undefined,
       best_of: number | undefined,
       beam_size: number | undefined,
       patience: number | undefined,
 
       length_penalty: number | undefined,
-      prompt: number|undefined,
+      prompt: number | undefined,
       prefix: number | undefined,
 
       suppress_tokens: {
@@ -41,7 +43,7 @@ export class WhisperComponent {
       },
       suppress_blank: boolean,
       without_timestamps: boolean,
-      max_initial_timestamp: number |undefined,
+      max_initial_timestamp: number | undefined,
       fp16: boolean
 
     }
@@ -49,9 +51,26 @@ export class WhisperComponent {
   decoding_res: String[] = []
 
   constructor() {
+    invoke('whisper_get_model_kinds')
+      // `invoke` returns a Promise
+      .then((response) => {
+        // @ts-ignore
+        this.all_model_kind = response;
+      })
+  }
+
+
+  ChangeModel() {
 
   }
 
+  ChangeModelEvent(event: Event) {
+    let new_value = (event.target as HTMLSelectElement).value;
+    if (new_value != this.selected_model_kind) {
+      this.selected_model_kind = new_value
+      this.ChangeModel();
+    }
+  }
 
   RunTasks() {
     invoke('whisper_run_tasks', { tasks: this.tasks })
@@ -74,7 +93,7 @@ export class WhisperComponent {
 
     let all_files: string[] = [];
     if (Array.isArray(selected)) {
-      for(let s of selected){
+      for (let s of selected) {
         all_files.push(s)
       }
     } else if (selected === null) {

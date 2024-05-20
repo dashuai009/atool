@@ -17,7 +17,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet, 
             password_generator::gen_pwd_cmd,
-            whisper::whisper_run_tasks
+            whisper::whisper_run_tasks,
+            whisper::whisper_change_model,
+            whisper::whisper_get_model_kinds
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
