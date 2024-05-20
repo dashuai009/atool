@@ -5,9 +5,36 @@ on:
   push:
     branches:
       - release
+  workflow_dispatch:
+    inputs:
+      app-slug:
+        type: string
+        description: Slug of the application
+        required: true
+
+
+env:
+  CN_APP_SLUG: ${{ github.event.inputs.app-slug || 'atool'}}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  publish-tauri:
+  draft:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: create draft release
+        uses: crabnebula-dev/cloud-release@v0.1.0
+        with:
+          command: release draft ${{ env.CN_APP_SLUG }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
+
+  build:
+    needs: draft
     permissions:
       contents: write
     strategy:
@@ -65,12 +92,33 @@ jobs:
       - name: install frontend dependencies
         run: npm install # change this to npm or pnpm depending on which one you use
 
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: tauri-apps/tauri-action@v0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+      #     TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+      #   with:
+      #     tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
+      #     releaseName: 'Atool v__VERSION__'
+      #     releaseBody: 'See the assets to download this version and install.'
+      #     releaseDraft: true
+      #     prerelease: false
+      - name: upload assets
+        uses: crabnebula-dev/cloud-release@v0.1.0
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'Atool v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
+          command: release upload ${{ env.CN_APP_SLUG }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
+
+  publish:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: publish release
+        uses: crabnebula-dev/cloud-release@v0.1.0
+        with:
+          command: release publish ${{ env.CN_APP_SLUG }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
