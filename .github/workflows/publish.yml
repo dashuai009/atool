@@ -13,13 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-20.04, windows-latest]
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
 
     env:
       WINDOWS_FFMPEG_DOWNLOAD_URL: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive  # 或者用 true，根据需要选择
 
       - name: setup node
         uses: actions/setup-node@v4
@@ -31,7 +33,7 @@ jobs:
 
         # install tauri & ffmpeg dependencies
       - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
@@ -43,13 +45,11 @@ jobs:
           libiec61883-dev libpocketsphinx-dev libsphinxbase-dev libvidstab-dev libzimg-dev libbz2-dev \
           libbluray-dev libsrt-gnutls-dev libdav1d-dev libaom-dev
 
-      - uses: actions/checkout@v4
       - name: Install dependencies (MacOS only)
         if: matrix.platform == 'macos-latest'
         run: |
           brew install ffmpeg pkg-config
 
-      - uses: actions/checkout@v4
       - name: Install dependencies
         if: matrix.platform == 'windows-latest'
         run: |
