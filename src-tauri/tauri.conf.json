@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "atool",
-    "version": "0.0.2"
+    "version": "0.0.3"
   },
   "tauri": {
     "allowlist": {
@@ -64,7 +64,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://web.crabnebula.cloud/dashuai009/atool/releases/download/updater/update.json"
+        "https://cdn.crabnebula.app/update/dashuai009/atool/{{target}}-{{arch}}/{{current_version}}"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDcxMjcwQjI2ODY3QUI2RjYKUldUMnRucUdKZ3NuY1NQcklGUER2dkxDQ0Vyc04vWXpFbEliNUhtK2NqTGlzSUNycGx1Vk1SNm4K"
