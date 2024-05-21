@@ -96,6 +96,7 @@ jobs:
           mv ffmpeg-*/* ffmpeg/
           Add-Content $env:GITHUB_ENV "FFMPEG_DIR=${pwd}\ffmpeg`n"
           Add-Content $env:GITHUB_PATH "${pwd}\ffmpeg\bin`n"
+          copy ffmpeg/bin/*.dll ./src-tauri/third-party/ffmpeg
 
       - name: install frontend dependencies
         run: npm install # change this to npm or pnpm depending on which one you use
