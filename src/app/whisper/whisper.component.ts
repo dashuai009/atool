@@ -87,7 +87,7 @@ export class WhisperComponent {
       multiple: true,
       filters: [{
         name: 'Media File',
-        extensions: ['m4a', "mp3"]
+        extensions: ['m4a', "mp3", "wma", "ogg", "aac", "wav", "mp4", "mkv", "mov", "m4v", "avi", "flv"]
       }]
     });
 

@@ -1,13 +1,12 @@
 <div class="header">
     <button mat-raised-button (click)="SelectFile()">
-        <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="pick">
-        </mat-icon>
+        <mat-icon aria-hidden="false" aria-label="Example home icon">movie</mat-icon>
         pick file
     </button>
 
     <span>
         <mat-form-field>
-            <mat-label>Model</mat-label>
+            <!-- <mat-label>Model</mat-label> -->
             <mat-select [(value)] =  "selected_model_kind" (valueChange)="ChangeModelEvent($event)">
                 @for (option of all_model_kind; track option) {
                     <mat-option [value]="option">
@@ -19,9 +18,9 @@
     </span>
 
     <button mat-raised-button (click)="RunTasks()"><mat-icon aria-hidden="false" aria-label="run tasks"
-            fontIcon="run"></mat-icon>run tasks</button>
+            fontIcon="task"></mat-icon>run tasks</button>
     <button mat-raised-button (click)="ChangeModel()"><mat-icon aria-hidden="false" aria-label="Unload model"
-            fontIcon="run"></mat-icon>Unload model</button>
+            fontIcon="memory"></mat-icon>Unload model</button>
 
 </div>
 
