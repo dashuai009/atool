@@ -1,32 +1,54 @@
-<div class="header">
-    <button mat-raised-button (click)="SelectFile()">
-        <mat-icon aria-hidden="false" aria-label="Example home icon">movie</mat-icon>
-        pick file
-    </button>
+<mat-card class="header-card">
+    <mat-card-content>
+        <section class="header">
+            <span>
+                <mat-form-field>
+                    <!-- <mat-label>Model</mat-label> -->
+                    <mat-select [(value)]="selected_model_kind" (valueChange)="ChangeModelEvent($event)">
+                        @for (option of all_model_kind; track option) {
+                        <mat-option [value]="option">
+                            <mat-icon aria-hidden="false" aria-label="Example home icon">
+                                {{get_a(option) ? "download_done" : "file_download_off"}}</mat-icon>
+                            {{option}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </span>
+            <button mat-raised-button (click)="SelectFile()">
+                <mat-icon aria-hidden="false" aria-label="Example home icon">movie</mat-icon>
+                pick file
+            </button>
 
-    <span>
-        <mat-form-field>
-            <!-- <mat-label>Model</mat-label> -->
-            <mat-select [(value)] =  "selected_model_kind" (valueChange)="ChangeModelEvent($event)">
-                @for (option of all_model_kind; track option) {
-                    <mat-option [value]="option">
-                        {{option}}
-                    </mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-    </span>
+            <button mat-raised-button (click)="RunTasks()" [disabled]="run_disabled"><mat-icon aria-hidden="false"
+                    aria-label="run tasks" fontIcon="task"></mat-icon>run tasks</button>
+            <button mat-raised-button (click)="ChangeModel()" [disabled]="unload_disabled"><mat-icon aria-hidden="false" aria-label="Unload model"
+                    fontIcon="memory"></mat-icon>Unload model</button>
+        </section>
 
-    <button mat-raised-button (click)="RunTasks()"><mat-icon aria-hidden="false" aria-label="run tasks"
-            fontIcon="task"></mat-icon>run tasks</button>
-    <button mat-raised-button (click)="ChangeModel()"><mat-icon aria-hidden="false" aria-label="Unload model"
-            fontIcon="memory"></mat-icon>Unload model</button>
 
-</div>
+        <section class="progress-section" *ngIf="progress_visiable">
+            <h3 class="progress-bar-title">{{
+                progress_mode == 'indeterminate' ?
+                "Downloading " + selected_model_kind + " model."
+                : "Running tasks"
+                }}</h3>
+            <mat-progress-bar class="progress-bar" [value]="progress_value" [mode]="progress_mode">
+            </mat-progress-bar>
+        </section>
+    </mat-card-content>
+</mat-card>
+
+
 
 @for (item of selected_files; track $index) {
 <div class="task-item">
+    @if (IsAudio(item.url)) {
     <audio controls [src]="item.url"></audio>
+    } @else {
+    <video controls [src]="item.url" class="video-item-style"></video>
+    }
+
     <div>
         <mat-form-field>
             <mat-label>Task</mat-label>
