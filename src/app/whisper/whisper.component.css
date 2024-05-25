@@ -31,12 +31,24 @@
 
 
 .task-item {
-  display: flex;
-  flex-direction: row;
+  /* display: flex; */
+  /* flex-direction: row; */
   margin: 4px;
 }
 
 
 .video-item-style {
   max-width: 50%;
+}
+
+.result-text-area {
+  width: 100%;
+}
+
+.result-text-area button{
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  /* align-items: flex-end;  */
+  cursor: pointer;
 }

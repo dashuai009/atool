@@ -17,8 +17,10 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet, 
             password_generator::gen_pwd_cmd,
-            whisper::whisper_change_model,
-            whisper::whisper_model_is_downloaded,
+            whisper::whisper_unload_model,
+            whisper::whisper_get_model_in_memory,
+            whisper::whisper_set_selected_model_kind,
+            whisper::whisper_update_model_is_downloaded,
             whisper::whisper_get_current_model_downloading_preogress,
             whisper::whisper_get_task_progess,
             whisper::whisper_get_model_is_loaded,

@@ -13,6 +13,7 @@ import { MatTooltip } from "@angular/material/tooltip";
 import { MatProgressBarModule, ProgressBarMode } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { writeText } from '@tauri-apps/api/clipboard';
 
 const AudioExtensions: string[] = ['m4a', "mp3", "wma", "ogg", "aac", "wav"];
 const VideoExtensions: string[] = ["mp4", "mkv", "mov", "m4v", "avi", "flv"];
@@ -58,8 +59,7 @@ export class WhisperComponent {
   run_disabled: boolean = false;
   unload_disabled: boolean = true;
 
-  get_a(option: String) {
-    // console.log(typeof this.model_is_downloaded)
+  get_model_is_downloaded(option: String) {
     // @ts-ignore
     return this.model_is_downloaded[option];
   }
@@ -75,7 +75,7 @@ export class WhisperComponent {
         // @ts-ignore
         this.all_model_kind = response;
       })
-    invoke('whisper_model_is_downloaded')
+    invoke('whisper_update_model_is_downloaded')
       .then((response) => {
         // @ts-ignore
         this.model_is_downloaded = response;
@@ -83,28 +83,27 @@ export class WhisperComponent {
   }
 
 
-  ChangeModel() {
-
+  // unload model from memory
+  UnloadModel() {
+    invoke('whisper_unload_model');
+    this.unload_disabled = true;
   }
 
-  ChangeModelEvent(event: Event) {
-    let new_value = (event.target as HTMLSelectElement).value;
-    if (new_value != this.selected_model_kind) {
-      this.selected_model_kind = new_value
-      this.ChangeModel();
-    }
+  ChangeModelEvent() {
+    invoke('whisper_set_selected_model_kind', { modelKind: this.selected_model_kind });
   }
 
   RunTasks() {
     this.run_disabled = true;
     this.progress_visiable = true;
 
-    let check_state = setInterval(() => {
-      invoke('whisper_model_is_downloaded')
+    let check_state_func = () => {
+      invoke('whisper_update_model_is_downloaded')
         .then((response) => {
           // @ts-ignore
           this.model_is_downloaded = response;
-          if (this.model_is_downloaded.get(this.selected_model_kind)) {
+          // @ts-ignore
+          if (this.model_is_downloaded[this.selected_model_kind]) {
             this.progress_mode = 'determinate';
           }
         })
@@ -113,7 +112,16 @@ export class WhisperComponent {
           // @ts-ignore
           this.unload_disabled = !response;
         })
-    }, 1000);
+      invoke('whisper_get_model_in_memory')
+        .then((response) => {
+          // @ts-ignore
+          this.unload_disabled = !response
+        })
+    };
+
+    // run intermidiatly
+    check_state_func();
+    let check_state = setInterval(check_state_func, 2000);
     invoke('whisper_run_tasks', { tasks: this.tasks })
       .then((response) => {
         // @ts-ignore
@@ -177,11 +185,14 @@ export class WhisperComponent {
       })
       this.decoding_res.push("")
     }
-    console.log("array selected: ", selected, "after = ", this.selected_files)
   }
 
   IsAudio(file_path: String) {
     return file_path.slice((file_path.lastIndexOf(".") - 1 >>> 0) + 2) in AudioExtensions;
+  }
+
+  copy_pwd(text: String){
+    writeText(text as string)
   }
 
 }

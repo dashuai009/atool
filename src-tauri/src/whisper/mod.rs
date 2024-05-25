@@ -12,7 +12,8 @@ use whisper::whisper_helper::{WhichModel, WhisperHelper};
 
 pub struct WhisperState {
     pub helper: Mutex<Option<WhisperHelper<Wgpu<AutoGraphicsApi, f32, i32>>>>,
-    pub model_kind: Mutex<WhichModel>,
+    pub model_in_memory: Mutex<Option<WhichModel>>,
+    pub selected_model_kind: Mutex<WhichModel>,
     pub model_is_downloaded: Mutex<HashMap<WhichModel, bool>>,
     pub current_model_downloading_progress: Mutex<f32>,
     pub task_progess: Mutex<f32>,
@@ -36,7 +37,8 @@ impl Default for WhisperState {
         }
         Self {
             helper: Default::default(),
-            model_kind: Default::default(),
+            model_in_memory: Default::default(),
+            selected_model_kind: Default::default(),
             model_is_downloaded: model_is_downloaded.into(),
             current_model_downloading_progress: Default::default(),
             task_progess: Default::default(),
@@ -50,39 +52,48 @@ pub struct WhisperTask {
     decode_option: DecodingOptions,
 }
 
+/// unload model from memory
 #[tauri::command]
-pub fn whisper_change_model(model_kind: WhichModel, whisper_state: tauri::State<'_, WhisperState>) {
-    *whisper_state.helper.lock().unwrap() = None; // take();
-    *whisper_state.model_kind.lock().unwrap() = model_kind;
-
-    let cache = hf_hub::Cache::default();
-    *whisper_state
-        .current_model_downloading_progress
-        .lock()
-        .unwrap() = if cache
-        .model(model_kind.model_and_revision().0.to_string())
-        .get("pytorch_model.bin")
-        .is_some()
-    {
-        1.0f32
-    } else {
-        0.0f32
-    };
+pub fn whisper_unload_model(whisper_state: tauri::State<'_, WhisperState>) {
+    *whisper_state.helper.lock().unwrap() = None;
+    *whisper_state.model_in_memory.lock().unwrap() = None;
 }
 
+/// wether model is in memory
 #[tauri::command]
-pub fn whisper_model_is_downloaded(
+pub fn whisper_get_model_in_memory(whisper_state: tauri::State<'_, WhisperState>) -> Option<WhichModel> {
+    *whisper_state.model_in_memory.lock().unwrap()
+}
+
+/// set the kind of selected model
+#[tauri::command]
+pub fn whisper_set_selected_model_kind(
+    model_kind: WhichModel,
+    whisper_state: tauri::State<'_, WhisperState>,
+) {
+    *whisper_state.selected_model_kind.lock().unwrap() = model_kind;
+}
+
+/// update the download state of models.
+#[tauri::command]
+pub fn whisper_update_model_is_downloaded(
     whisper_state: tauri::State<'_, WhisperState>,
 ) -> HashMap<WhichModel, bool> {
-    let model_kind = {
-        *whisper_state.model_kind.lock().unwrap()
-    };
+    let selected_model_kind = { *whisper_state.selected_model_kind.lock().unwrap() };
     let cache = hf_hub::Cache::default();
+    let mut model_is_downloaded = whisper_state.model_is_downloaded.lock().unwrap();
+    for model_kind in whisper_get_model_kinds() {
+        let downlaoded = cache
+            .model(model_kind.model_and_revision().0.to_string())
+            .get("pytorch_model.bin")
+            .is_some();
+        (*model_is_downloaded).insert(model_kind, downlaoded);
+    }
     *whisper_state
         .current_model_downloading_progress
         .lock()
         .unwrap() = if cache
-        .model(model_kind.model_and_revision().0.to_string())
+        .model(selected_model_kind.model_and_revision().0.to_string())
         .get("pytorch_model.bin")
         .is_some()
     {
@@ -90,7 +101,8 @@ pub fn whisper_model_is_downloaded(
     } else {
         0.0f32
     };
-    whisper_state.model_is_downloaded.lock().unwrap().clone()
+
+    model_is_downloaded.clone()
 }
 
 #[tauri::command]
@@ -133,26 +145,28 @@ pub fn whisper_get_model_kinds() -> Vec<WhichModel> {
 }
 
 #[tauri::command]
-pub async fn whisper_run_tasks(
+pub async fn whisper_run_tasks<'a>(
     tasks: Vec<WhisperTask>,
-    whisper_state: tauri::State<'_, WhisperState>,
+    whisper_state: tauri::State<'a, WhisperState>,
 ) -> Result<Vec<String>, ()> {
     let fake_endpoint = "https://hf-mirror.com".to_string();
     std::env::set_var("HF_ENDPOINT", &fake_endpoint);
     let mut model = whisper_state.helper.lock().unwrap();
-    if model.is_none() {
+    let current_selected_model_kind = { *whisper_state.selected_model_kind.lock().unwrap() };
+    if model.is_none() || model.as_ref().unwrap().kind != current_selected_model_kind {
         let device = WgpuDevice::BestAvailable;
-        *model = Some(WhisperHelper::new(
-            *whisper_state.model_kind.lock().unwrap(),
-            &device,
-        ));
+        *model = Some(WhisperHelper::new(current_selected_model_kind, &device));
         whisper_state
             .model_is_loaded
             .store(true, std::sync::atomic::Ordering::SeqCst);
-        *whisper_state
-            .current_model_downloading_progress
-            .lock()
-            .unwrap() = 1.0f32;
+        
+            *whisper_state
+                .current_model_downloading_progress
+                .lock()
+                .unwrap() = 1.0f32;
+        
+        *whisper_state.model_in_memory.lock().unwrap() = Some(current_selected_model_kind);
+
     }
     println!("tasks = : {tasks:#?}");
     let total_tasks = tasks.len();
@@ -174,5 +188,5 @@ pub async fn whisper_run_tasks(
         .collect::<Vec<_>>();
     *whisper_state.task_progess.lock().unwrap() = 1.0f32;
     println!("res = {:#?}", res);
-    return Ok(res);
+    Ok(res)
 }
