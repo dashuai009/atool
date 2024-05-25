@@ -1,45 +1,71 @@
-<div class="header">
-    <button mat-raised-button (click)="SelectFile()">
-        <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="pick">
-        </mat-icon>
-        pick file
-    </button>
+<mat-card class="header-card">
+    <mat-card-content>
+        <section class="header">
+            <span>
+                <mat-form-field>
+                    <!-- <mat-label>Model</mat-label> -->
+                    <mat-select [(ngModel)]="selected_model_kind" (ngModelChange)="ChangeModelEvent()">
+                        @for (option of all_model_kind; track option) {
+                        <mat-option [value]="option">
+                            <mat-icon aria-hidden="false" aria-label="Example home icon">
+                                {{get_model_is_downloaded(option) ? "download_done" : "file_download_off"}}</mat-icon>
+                            {{option}}
+                        </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </span>
+            <button mat-raised-button (click)="SelectFile()">
+                <mat-icon aria-hidden="false" aria-label="Example home icon">movie</mat-icon>
+                pick file
+            </button>
 
-    <span>
-        <mat-form-field>
-            <mat-label>Model</mat-label>
-            <mat-select [(value)] =  "selected_model_kind" (valueChange)="ChangeModelEvent($event)">
-                @for (option of all_model_kind; track option) {
-                    <mat-option [value]="option">
-                        {{option}}
-                    </mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-    </span>
+            <button mat-raised-button (click)="RunTasks()" [disabled]="run_disabled"><mat-icon aria-hidden="false"
+                    aria-label="run tasks" fontIcon="task"></mat-icon>run tasks</button>
+            <button mat-raised-button (click)="UnloadModel()" [disabled]="unload_disabled || run_disabled"><mat-icon
+                    aria-hidden="false" aria-label="Unload model" fontIcon="memory"></mat-icon>Unload model</button>
+        </section>
 
-    <button mat-raised-button (click)="RunTasks()"><mat-icon aria-hidden="false" aria-label="run tasks"
-            fontIcon="run"></mat-icon>run tasks</button>
-    <button mat-raised-button (click)="ChangeModel()"><mat-icon aria-hidden="false" aria-label="Unload model"
-            fontIcon="run"></mat-icon>Unload model</button>
 
-</div>
+        <section class="progress-section" *ngIf="progress_visiable">
+            <h3 class="progress-bar-title">{{
+                progress_mode == 'indeterminate' ?
+                "Downloading " + selected_model_kind + " model."
+                : "Running tasks"
+                }}</h3>
+            <mat-progress-bar class="progress-bar" [value]="progress_value" [mode]="progress_mode">
+            </mat-progress-bar>
+        </section>
+    </mat-card-content>
+</mat-card>
+
+
 
 @for (item of selected_files; track $index) {
 <div class="task-item">
+    @if (IsAudio(item.url)) {
     <audio controls [src]="item.url"></audio>
-    <div>
+    } @else {
+    <video controls [src]="item.url" class="video-item-style"></video>
+    }
+
+    <!-- <div>
         <mat-form-field>
-            <mat-label>Task</mat-label>
+            <mat-label>Task</mat-label>     
             <mat-select [(ngModel)]="tasks[$index].decode_option.task">
                 <mat-option matTooltip="X->X speech recognition" value="Transcribe">transcribe</mat-option>
                 <mat-option matTooltip="X->English translation" value="Translate">translation</mat-option>
                 <mat-option matTooltip="language recognition" value="LangId" selected>language id</mat-option>
             </mat-select>
         </mat-form-field>
-    </div>
+    </div> -->
+
+    <mat-form-field class="result-text-area">
+        <textarea matInput placeholder="Decoding result..." [(ngModel)]="decoding_res[$index]"></textarea>
+        <button mat-icon-button [matTooltip]=" 'copy' " (click)="copy_pwd(decoding_res[$index])">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    </mat-form-field>
 </div>
-<div>
-    result: {{decoding_res[$index]}}
-</div>
+
 }

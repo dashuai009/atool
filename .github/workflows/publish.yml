@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive  # 或者用 true，根据需要选择
+          submodules: recursive
 
       - name: setup node
         uses: actions/setup-node@v4
@@ -87,6 +87,7 @@ jobs:
 
       - name: Install dependencies
         if: matrix.settings.platform == 'windows-latest'
+        # we don't need avcodec.dll, avdevice.dll or filter.dll now
         run: |
           $VCINSTALLDIR = $(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath)
           Add-Content $env:GITHUB_ENV "LIBCLANG_PATH=${VCINSTALLDIR}\VC\Tools\LLVM\x64\bin`n"
@@ -96,6 +97,11 @@ jobs:
           mv ffmpeg-*/* ffmpeg/
           Add-Content $env:GITHUB_ENV "FFMPEG_DIR=${pwd}\ffmpeg`n"
           Add-Content $env:GITHUB_PATH "${pwd}\ffmpeg\bin`n"
+          copy ffmpeg/bin/avformat-*.dll ./src-tauri/third-party/ffmpeg
+          copy ffmpeg/bin/avutil-*.dll ./src-tauri/third-party/ffmpeg
+          copy ffmpeg/bin/postproc-*.dll ./src-tauri/third-party/ffmpeg
+          copy ffmpeg/bin/swresample-*.dll ./src-tauri/third-party/ffmpeg
+          copy ffmpeg/bin/swscale-*.dll ./src-tauri/third-party/ffmpeg
 
       - name: install frontend dependencies
         run: npm install # change this to npm or pnpm depending on which one you use

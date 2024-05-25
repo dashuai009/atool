@@ -1,12 +1,54 @@
-.task-item{
-    display: flex;
-    flex-direction: row; 
-    margin: 4px;
+.header {
+  display: flex;
+  justify-content: space-around;
+  margin: auto;
+  align-items: center;
 }
 
-.header{
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    margin: 3px;
+.header-card {
+  margin-bottom: 10px;
+}
+
+
+.progress-card {
+  margin-bottom: 10px;
+}
+
+.progress-section {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  height: 20px;
+}
+
+.progress-bar {
+  margin: 0 10px;
+}
+
+.progress-bar-title {
+  margin: 10px;
+}
+
+
+.task-item {
+  /* display: flex; */
+  /* flex-direction: row; */
+  margin: 4px;
+}
+
+
+.video-item-style {
+  max-width: 50%;
+}
+
+.result-text-area {
+  width: 100%;
+}
+
+.result-text-area button{
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  /* align-items: flex-end;  */
+  cursor: pointer;
 }

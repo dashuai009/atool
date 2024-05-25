@@ -1,6 +1,6 @@
 [package]
 name = "atool"
-version = "0.0.1"
+version = "0.0.4"
 description = "Atool"
 authors = ["dashuai009@gmail.com"]
 edition = "2021"
@@ -20,6 +20,7 @@ whisper = {version = "0.1.0", path = "./whisper-burn"}
 burn-import = {  version = "0.13" }
 burn = {  version = "0.13"}
 burn-wgpu = {  version = "0.13"}
+hf-hub = { version = "0.3.2", path = "./whisper-burn/hf-hub" }
 
 [target.'cfg(windows)'.dependencies]
 ffmpeg-next = { version = "7.0.1" }
