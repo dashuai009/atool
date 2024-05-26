@@ -43,7 +43,7 @@ jobs:
         settings:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
             args: '--target aarch64-apple-darwin'
-          - platform: 'macos-latest' # for Intel based macs.
+          - platform: 'macos-latest-large' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
           - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ''
@@ -65,9 +65,9 @@ jobs:
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
-          targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        # with:
+        #   # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+        #   targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
 
         # install tauri & ffmpeg dependencies
@@ -85,7 +85,7 @@ jobs:
           libbluray-dev libsrt-gnutls-dev libdav1d-dev libaom-dev
 
       - name: Install dependencies (MacOS only)
-        if: matrix.settings.platform == 'macos-latest'
+        if: matrix.settings.platform == 'macos-latest' || matrix.settings.platform == 'macos-latest-large'
         run: |
           brew install ffmpeg pkg-config
 
@@ -122,7 +122,7 @@ jobs:
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.settings.args }}
+          # args: ${{ matrix.settings.args }}
 
       - name: upload assets
         uses: crabnebula-dev/cloud-release@v0.1.0
