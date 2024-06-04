@@ -1,8 +1,7 @@
 mod input;
-
-use crate::whisper::input::filepath_to_mels;
 use burn_wgpu::{AutoGraphicsApi, Wgpu, WgpuDevice};
 use hf_hub;
+use input::load_audio_waveform_with_ffmpeg;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
@@ -174,10 +173,10 @@ pub async fn whisper_run_tasks<'a>(
     let res = tasks
         .iter()
         .map(|task| {
-            let (mels, _) = filepath_to_mels(&task.file_path, &device);
+            let audio = load_audio_waveform_with_ffmpeg(&task.file_path).unwrap_or_default();
             let decoding_res = (model.as_ref())
                 .unwrap()
-                .run(mels, task.decode_option.clone());
+                .run(&audio, 4, task.decode_option.clone(), &device);
             let mut res_text = String::new();
             for i in decoding_res {
                 res_text += &*i.text;

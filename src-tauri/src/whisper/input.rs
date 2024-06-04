@@ -102,7 +102,7 @@ pub fn load_audio_waveform_with_ffmpeg(input_file: &str) -> Result<Vec<f32>, ffm
 }
 
 
-pub fn filepath_to_mels<B: Backend>(file_path: &str, device: &B::Device) -> (Tensor<B, 3>, usize) {
+fn _filepath_to_mels<B: Backend>(file_path: &str, device: &B::Device) -> (Tensor<B, 3>, usize) {
     let mut wave = load_audio_waveform_with_ffmpeg(&file_path).unwrap();
     let wave_duration = wave.len();
     let pad_len = if wave.len() % N_SAMPLES == 0 { 0 } else { N_SAMPLES - wave.len() % N_SAMPLES };
