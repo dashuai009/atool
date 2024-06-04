@@ -1,6 +1,6 @@
 [package]
 name = "atool"
-version = "0.0.4"
+version = "0.0.5"
 description = "Atool"
 authors = ["dashuai009@gmail.com"]
 edition = "2021"
